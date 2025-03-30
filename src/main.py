@@ -5,11 +5,11 @@
 '''
 import tkinter as tk
 from tkinter import messagebox
-#from pygame import mixer
+import winsound
 import random
 import time
 
-version = "0.2.0"
+version = "0.2.1"
 
 class GUI():
     def __init__(self):
@@ -72,12 +72,10 @@ class GUI():
         #print(f"点击了: {int(num)}")
         self.numList.append(num)
         if int(num) != self.current_number:
-            print("错误音效")
-            
+            winsound.Beep(1000,200)
         else:
             self.current_number += 1
             #btn.config(bg="GREY")
-            print("没问题")
             if self.current_number > 16:
                 self.stop_timer()
                 messagebox.showinfo("恭喜", f"已完成！总用时：{self.get_elapsed_time()}")
