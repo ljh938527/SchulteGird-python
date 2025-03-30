@@ -14,6 +14,8 @@ class GUI():
         self.root = tk.Tk()
         self.root.title('舒尔特方格 - v' + version)
         self.root.geometry("400x400")
+        self.button_frame = tk.Frame(self.root)  # 按钮容器
+        self.button_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
         
         self.textList = ["1", "2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"]
         self.numList = []
@@ -33,7 +35,7 @@ class GUI():
         * Function : 处理按钮事件
         * Description : 若点击数字与当前数字相同则继续，不相同则播放错误音效
         '''
-        #print(f"点击了: {int(num)}")
+        print(f"点击了: {int(num)}")
         self.numList.append(num)
         if int(num) != self.current_number:
             print("错误音效")
@@ -57,20 +59,20 @@ class GUI():
         for btn in self.buttons:
             btn.destroy()
         self.buttons.clear()
-        for i in range(1, 5):
-            for j in range(1, 5):
-                text_value = self.table[j-1][i-1]
+        for i in range(4):
+            for j in range(4):
+                text_value = self.table[j][i]
                 Button1 = tk.Button(
-                    self.root, 
+                    self.button_frame, 
                     text=text_value, 
                     font=("Arial", 12, 'bold'), 
-                    fg="WHITE",
+                    fg="WHITE", 
                     bg="GREEN", 
                     command=lambda num=text_value: self.handle_button_on_click(num),  # 使用lambda传递参数
                     width=3, 
                     height=2
                 )
-                Button1.place(x=100*i, y=100*j)
+                Button1.grid(row=j, column=i, padx=2, pady=2)
                 self.buttons.append(Button1)
 
     def interface(self):  # 窗口布局
@@ -79,7 +81,7 @@ class GUI():
         self.update()
 
         Button2= tk.Button(self.root, text="乱序", font=("Arial", 10, 'bold'), command=self.shuffleTable)
-        Button2.place(x=50, y=10)
+        Button2.place(x=10, y=10)
         
 
 if __name__ == "__main__":
