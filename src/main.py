@@ -4,7 +4,7 @@
     Project-Url : https://github.com/ljh938527/SchulteGird-python
 '''
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import simpledialog, messagebox
 import random
 import winsound
 from game import Game
@@ -26,6 +26,17 @@ class GUI(Game):
         self.buttons = []
         
         self.interface()
+    
+    def setup_menu(self):
+        """创建菜单栏"""
+        menubar = tk.Menu(self.root)
+        game_menu = tk.Menu(menubar, tearoff=0)
+        game_menu.add_command(label="新游戏", command=self.gameRestart)
+        game_menu.add_command(label="设置尺寸", command=self.change_grid_size)
+        game_menu.add_separator()
+        game_menu.add_command(label="退出", command=self.root.quit)
+        menubar.add_cascade(label="游戏", menu=game_menu)
+        self.root.config(menu=menubar)
     
     def handle_button_on_click(self, btn, num):
         """处理按钮点击事件"""
@@ -51,7 +62,35 @@ class GUI(Game):
         self.current_number = 1
         self.start_time = None
         self.time_label.config(text="用时：00:00.00")
+        self.size_var.set(str(self.grid_size))
         self.reput_buttons()
+    
+    def change_grid_size(self):
+        """修改网格尺寸"""
+        new_size = simpledialog.askinteger(
+            "设置尺寸",
+            f"当前尺寸：{self.grid_size}\n请输入新尺寸（3-6）：",
+            parent=self.root,
+            minvalue=3,
+            maxvalue=6
+        )
+        
+        if new_size and new_size != self.grid_size:
+            self.grid_size = new_size
+            self.gameRestart()
+    
+    def on_size_change(self):
+        """Spinbox尺寸修改事件"""
+        try:
+            new_size = int(self.size_var.get())
+            if 3 <= new_size <= 6:
+                self.grid_size = new_size
+                self.restart_game()
+            else:
+                raise ValueError
+        except ValueError:
+            self.size_var.set(str(self.grid_size))
+            messagebox.showerror("错误", "请输入3-6之间的整数")
     
     def update_time_display(self):
         """更新界面时间显示"""
@@ -78,9 +117,10 @@ class GUI(Game):
     
     def interface(self):
         """窗口布局显示"""
+        self.setup_menu()
+        self.size_var = tk.StringVar(value=str(self.grid_size))
         time_frame = tk.Frame(self.root)
         time_frame.pack(pady=15)
-        
         self.time_label = tk.Label(
             time_frame,
             text="用时：00:00.00",
@@ -91,7 +131,8 @@ class GUI(Game):
         self.create_buttons()
 
         Button1 = tk.Button(self.root, text="打乱", font=("Arial", 10, 'bold'), command=self.gameRestart)
-        Button1.place(x=10, y=10)
+        #Button1.place(x=10, y=10)
+        
         
     
 
