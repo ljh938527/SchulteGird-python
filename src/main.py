@@ -23,19 +23,30 @@ class GUI(Game):
         self.root.resizable(True, True)
         self.grid_frame = tk.Frame(self.root)  # 按钮容器
         self.grid_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
+        
         self.buttons = []
+        self.size_var = tk.StringVar(value=str(self.grid_size))
+        self.enable_gray = tk.BooleanVar(value=True)
         
         self.interface()
     
     def setup_menu(self):
         """创建菜单栏"""
         menubar = tk.Menu(self.root)
+        # 游戏菜单
         game_menu = tk.Menu(menubar, tearoff=0)
         game_menu.add_command(label="新游戏", command=self.gameRestart)
-        game_menu.add_command(label="设置尺寸", command=self.change_grid_size)
+        #game_menu.add_command(label="设置尺寸", command=self.change_grid_size)
         game_menu.add_separator()
         game_menu.add_command(label="退出", command=self.root.quit)
         menubar.add_cascade(label="游戏", menu=game_menu)
+        # 设置菜单
+        settings_menu = tk.Menu(menubar, tearoff=0)
+        settings_menu.add_command(label="设置尺寸", command=self.change_grid_size)
+        settings_menu.add_separator()
+        settings_menu.add_checkbutton(label="按钮变灰", variable=self.enable_gray)
+        
+        menubar.add_cascade(label="设置", menu=settings_menu)
         self.root.config(menu=menubar)
     
     def handle_button_on_click(self, btn, num):
@@ -47,7 +58,8 @@ class GUI(Game):
             winsound.Beep(1000,200)
         else:
             self.current_number += 1
-            btn.config(bg="GREY")
+            if self.enable_gray.get():
+                btn.config(bg="GREY")
             if self.current_number > self.grid_size**2:
                 self.stop_timer()
                 messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(self.passed_time())}")
@@ -118,7 +130,7 @@ class GUI(Game):
     def interface(self):
         """窗口布局显示"""
         self.setup_menu()
-        self.size_var = tk.StringVar(value=str(self.grid_size))
+        
         time_frame = tk.Frame(self.root)
         time_frame.pack(pady=15)
         self.time_label = tk.Label(
