@@ -5,105 +5,77 @@
 '''
 import tkinter as tk
 from tkinter import messagebox
-import winsound
 import random
-import time
+import winsound
+from game import Game
+from window import menu
+from utils import format_time
 
-version = "0.2.1"
+version = ["1", "0", "0"]
+versions = '.'.join(version)
 
-class GUI():
+class GUI(Game):
     def __init__(self):
         super(GUI, self).__init__()
         self.root = tk.Tk()
-        self.root.title('舒尔特方格 - v' + version)
-        self.root.geometry("400x400")
+        self.root.title('舒尔特方格 - v' + versions)
+        self.root.geometry("600x600")
         self.root.resizable(True, True)
-        self.button_frame = tk.Frame(self.root)  # 按钮容器
-        self.button_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
-        
-        self.textList = ["1", "2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"]
-        self.numList = []
-        self.current_number = 1
+        self.grid_frame = tk.Frame(self.root)  # 按钮容器
+        self.grid_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
         self.buttons = []
-        self.start_time = None  # 开始时间
-        self.time_label = None
-        self.timer_running = False  # 计时器状态
-
+        
         self.interface()
-
-    def make_table(self, list, a) -> list:
-        """将列表转为a*a的二维数组"""
-        return [list[i:i+a] for i in range(0, a*a, a)]
-
-    def shuffleList(self, list):
-        """打乱列表"""
-        random.shuffle(list)
-
-    def start_timer(self):
-        """启动计时器"""
-        self.start_time = time.time()
-        self.timer_running = True
-        self.update_time_display()
-
-    def stop_timer(self):
-        """停止计时器"""
-        self.timer_running = False
     
-    def get_elapsed_time(self):
-        """获取格式化时间字符串"""
-        if self.start_time is None:
-            return "00:00.00"
-        elapsed = time.time() - self.start_time
-        mins = int(elapsed // 60)
-        secs = int(elapsed % 60)
-        millis = int((elapsed - int(elapsed)) * 100)
-        return f"{mins:02}:{secs:02}.{millis:02}"
-
-    def update_time_display(self):
-        """更新界面时间显示"""
-        if self.timer_running:
-            self.time_label.config(text=f"用时：{self.get_elapsed_time()}")
-            self.root.after(10, self.update_time_display)  # 每10ms更新一次
-
     def handle_button_on_click(self, btn, num):
         """处理按钮点击事件"""
         if not self.timer_running:
             self.start_timer()
         #print(f"点击了: {int(num)}")
-        self.numList.append(num)
         if int(num) != self.current_number:
             winsound.Beep(1000,200)
         else:
             self.current_number += 1
-            #btn.config(bg="GREY")
-            if self.current_number > 16:
+            btn.config(bg="GREY")
+            if self.current_number > self.grid_size**2:
                 self.stop_timer()
-                messagebox.showinfo("恭喜", f"已完成！总用时：{self.get_elapsed_time()}")
+                messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(self.passed_time())}")
                 self.current_number = 1
+                for btn in self.buttons:
+                    btn.config(bg="GREEN")
 
     def gameRestart(self):
         """重开按钮，更新界面"""
         self.stop_timer()
-        self.shuffleList(self.textList)
-        self.table = self.make_table(self.textList, 4)
+        self.generate_grid()
         self.current_number = 1
         self.start_time = None
         self.time_label.config(text="用时：00:00.00")
-        self.update()
-
-    def update(self):
-        """更新按钮"""
+        self.reput_buttons()
+    
+    def update_time_display(self):
+        """更新界面时间显示"""
+        if self.timer_running:
+            self.time_label.config(text=f"用时：{format_time(self.passed_time())}")
+            self.root.after(10, self.update_time_display)  # 每10ms更新一次
+    
+    def create_buttons(self):
+        """创建按钮"""
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                text_value = self.grid[i][j]
+                Btn = tk.Button(self.grid_frame, text=text_value, font=("Arial", 12, 'bold'), fg="WHITE", bg="GREEN", width=3, height=2)
+                Btn.config(command=lambda btn=Btn, num=text_value: self.handle_button_on_click(btn, num))  # 使用lambda传递参数
+                Btn.grid(row=j, column=i, padx=2, pady=2)
+                self.buttons.append(Btn)
+    
+    def reput_buttons(self):
+        """重放按钮"""
         for btn in self.buttons:
             btn.destroy()
         self.buttons.clear()
-        for i in range(4):
-            for j in range(4):
-                text_value = self.table[j][i]
-                Button1 = tk.Button(self.button_frame, text=text_value, font=("Arial", 12, 'bold'), fg="WHITE", bg="GREEN", width=3, height=2)
-                Button1.config(command=lambda btn=Button1, num=text_value: self.handle_button_on_click(btn, num))  # 使用lambda传递参数
-                Button1.grid(row=j, column=i, padx=2, pady=2)
-                self.buttons.append(Button1)
-
+        self.create_buttons()
+    
     def interface(self):
         """窗口布局显示"""
         time_frame = tk.Frame(self.root)
@@ -115,14 +87,16 @@ class GUI():
             font=("Arial", 12))
         self.time_label.pack()
         
-        self.shuffleList(self.textList)
-        self.table = self.make_table(self.textList, 4)
-        self.update()
+        self.generate_grid()
+        self.create_buttons()
 
-        Button2= tk.Button(self.root, text="重开", font=("Arial", 10, 'bold'), command=self.gameRestart)
-        Button2.place(x=10, y=10)
+        Button1 = tk.Button(self.root, text="打乱", font=("Arial", 10, 'bold'), command=self.gameRestart)
+        Button1.place(x=10, y=10)
         
+    
 
 if __name__ == "__main__":
     app = GUI()
     app.root.mainloop()
+    
+    
