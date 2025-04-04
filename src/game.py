@@ -1,6 +1,7 @@
 from random import shuffle
 import time
 from utils import make_table
+from statistics import Statistics
 
 class Game():
     def __init__(self):
@@ -13,7 +14,7 @@ class Game():
         
         self.grid_size = 5
         self.grid = []
-        
+        self.stats = Statistics()
     
     def generate_grid(self):
         """生成数字网格"""
@@ -22,10 +23,16 @@ class Game():
         self.grid = make_table(numbers, self.grid_size)
     
     def next_number(self):
+        """点击数自增"""
         self.current_number += 1
     
     def count_click_wrong(self):
+        """错误数自增"""
         self.wrong_count += 1
+    
+    def is_completed(self) -> bool:
+        """游戏胜利"""
+        return self.current_number > self.grid_size**2
     
     def update_time_display(self):
         pass
@@ -45,6 +52,7 @@ class Game():
         return time.time() - self.start_time
     
     def resetGame(self):
+        """重置游戏"""
         self.stop_timer()
         self.current_number = 1
         self.wrong_count = 0

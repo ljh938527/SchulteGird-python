@@ -1,7 +1,7 @@
 
-def make_table(list, a) -> list:
+def make_table(lst, a) -> list:
     """将列表转为a*a的二维数组"""
-    return [list[i:i+a] for i in range(0, a*a, a)]
+    return [lst[i:i+a] for i in range(0, a*a, a)]
 
 def format_time(seconds):
     """格式化时间字符串"""
