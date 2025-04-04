@@ -5,14 +5,15 @@
 '''
 import tkinter as tk
 from tkinter import simpledialog, messagebox
-import random
-import winsound
+import pygame
+from threading import Thread
 from game import Game
-from window import menu
 from utils import format_time
 
 version = ["1", "0", "0"]
 versions = '.'.join(version)
+
+pygame.mixer.init()
 
 class GUI(Game):
     def __init__(self):
@@ -20,13 +21,16 @@ class GUI(Game):
         self.root = tk.Tk()
         self.root.title('舒尔特方格 - v' + versions)
         self.root.geometry("600x600")
+        self.root.minsize(600, 600)
         self.root.resizable(True, True)
         self.grid_frame = tk.Frame(self.root)  # 按钮容器
         self.grid_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
-        
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         self.buttons = []
         self.size_var = tk.StringVar(value=str(self.grid_size))
         self.enable_gray = tk.BooleanVar(value=True)
+        self.enable_play_sound = tk.BooleanVar(value=True)
         
         self.interface()
     
@@ -36,7 +40,6 @@ class GUI(Game):
         # 游戏菜单
         game_menu = tk.Menu(menubar, tearoff=0)
         game_menu.add_command(label="新游戏", command=self.gameRestart)
-        #game_menu.add_command(label="设置尺寸", command=self.change_grid_size)
         game_menu.add_separator()
         game_menu.add_command(label="退出", command=self.root.quit)
         menubar.add_cascade(label="游戏", menu=game_menu)
@@ -45,9 +48,32 @@ class GUI(Game):
         settings_menu.add_command(label="设置尺寸", command=self.change_grid_size)
         settings_menu.add_separator()
         settings_menu.add_checkbutton(label="按钮变灰", variable=self.enable_gray)
+        settings_menu.add_checkbutton(label="音效", variable=self.enable_play_sound)
         
         menubar.add_cascade(label="设置", menu=settings_menu)
         self.root.config(menu=menubar)
+    
+    def play_sound(self, file_path):
+        """播放音效"""
+        def _play():
+            try:
+                pygame.mixer.music.load(file_path)
+                pygame.mixer.music.play()
+            except pygame.error as e:
+                print(f'播放失败: {e}')
+        # 多线程后台播放
+        play = Thread(target=_play, daemon=True)
+        play.start()
+            
+    def play_error_sound(self):
+        """播放错误音效"""
+        self.play_sound('assets/Error10.mp3')
+    
+    def on_closing(self):
+        """窗口关闭事件处理"""
+        pygame.mixer.quit()
+        pygame.quit()
+        self.root.destroy()
     
     def handle_button_on_click(self, btn, num):
         """处理按钮点击事件"""
@@ -55,25 +81,25 @@ class GUI(Game):
             self.start_timer()
         #print(f"点击了: {int(num)}")
         if int(num) != self.current_number:
-            winsound.Beep(1000,200)
+            self.count_click_wrong()
+            if self.enable_play_sound.get():
+                self.play_error_sound()
         else:
-            self.current_number += 1
+            self.next_number()
             if self.enable_gray.get():
                 btn.config(bg="GREY")
             if self.current_number > self.grid_size**2:
                 self.stop_timer()
-                messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(self.passed_time())}")
+                messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(self.passed_time())}，错误次数：{self.wrong_count}")
                 self.current_number = 1
                 for btn in self.buttons:
                     btn.config(bg="GREEN")
 
     def gameRestart(self):
-        """重开按钮，更新界面"""
-        self.stop_timer()
-        self.generate_grid()
-        self.current_number = 1
-        self.start_time = None
+        """重开按钮"""
+        self.resetGame()
         self.time_label.config(text="用时：00:00.00")
+        self.generate_grid()
         self.size_var.set(str(self.grid_size))
         self.reput_buttons()
     
@@ -97,7 +123,7 @@ class GUI(Game):
             new_size = int(self.size_var.get())
             if 3 <= new_size <= 6:
                 self.grid_size = new_size
-                self.restart_game()
+                self.gameRestart()
             else:
                 raise ValueError
         except ValueError:
@@ -141,15 +167,9 @@ class GUI(Game):
         
         self.generate_grid()
         self.create_buttons()
-
-        Button1 = tk.Button(self.root, text="打乱", font=("Arial", 10, 'bold'), command=self.gameRestart)
-        #Button1.place(x=10, y=10)
         
-        
-    
 
 if __name__ == "__main__":
     app = GUI()
     app.root.mainloop()
-    
     
