@@ -1,72 +1,69 @@
 # Schulte Grid Training Tool
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The Schulte Grid is a classic attention training tool widely used for cognitive training, particularly among pilots and astronauts. This project implements an interactive Schulte Grid training game using Python and Tkinter.
+A Python-based cognitive training tool to improve peripheral perception and focus.
 
 ## ✨ Features
 
-- 🎯 Standard 4×4 number grid
-- 🎮 Number click validation
-- 🔀 One-click random shuffling
-- 🎵 Audio feedback for correct/incorrect selections
-- 🎨 Visual feedback (button color change on correct selection)
-- ⏱️ Responsive layout adapts to window size
+- **Customizable Grid Size**: 3x3 to 10x10 grids
+- **Dark/Light Themes**: Eye-friendly interface
+- **Game Statistics**:
+  - Time tracking with millisecond precision
+  - Session history storage
+  - Size-specific performance analysis
+- **Audio Feedback**: Error sound indication
+- **Data Export**: Save statistics to text file
 
-## 🛠️ Installation & Setup
+## 🚀 Installation & Running
 
-### Prerequisites
+### Requirements
 - Python 3.9+
 
-### Installation Steps
-1. Clone the repository:
+1. Clone repository:
 ```bash
-git clone https://github.com/ljh938527/SchulteGird-python.git
-cd SchulteGird-python
+git clone https://github.com/yourusername/Schulte-grid.git
+cd Schulte-grid
 ```
 
-2. Run the game:
+2. Install dependencies:
 ```bash
-python main.py
+pip install -r requirements.txt
 ```
 
-## 🎮 How to Play
+3. Run the application:
+```bash
+python src/main.py
+```
 
-1. The game displays a 4×4 grid of numbers at startup
-2. Click numbers in sequential order (1→2→3→...→16)
-3. Correct selections turn the button gray
-4. Click "Shuffle" to randomize number positions
-5. The game automatically tracks your selection sequence
+*Windows users can double-click `setup.bat` for automatic setup*
+
+## 🎮 Usage
+
+1. **Main Game**:
+   - Click numbers in ascending order
+   - Correct clicks advance progress
+   - Errors trigger sound feedback
+
+2. **Controls**:
+   - `Restart`: New game with current size
+   - `Statistics`: View performance history
+   - `Grid Size`: Use spinbox or menu to change
 
 ## 📁 Project Structure
 
 ```
-SchulteGrid/
-├── main.py          # Main program
-└── README.md      # Documentation
+Schulte-grid/
+├── src/
+│   ├── assets/          # Resource files
+│   ├── game.py          # Core game logic
+│   ├── main.py          # GUI entry point
+│   ├── statistics.py    # Data handling
+│   └── utils.py         # Helper functions
+├── requirements.txt     # Dependencies
+└── setup.bat            # Windows setup script
 ```
-
-## 🤝 Contributing
-
-We welcome issues and pull requests!
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a pull request
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📧 Contact
-
-For any questions, please contact:
-- Author: ljh938527
-- Email: [your email]
-- Project URL: https://github.com/ljh938527/SchulteGird-python
-
----
-
-**Happy Training!** 🚀 Improve your attention span with Schulte Grid exercises!
+MIT License - See [LICENSE](LICENSE) for details

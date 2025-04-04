@@ -1,72 +1,69 @@
 # 舒尔特方格训练工具
 
-## 项目概述
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-舒尔特方格是一种经典的注意力训练工具，广泛应用于飞行员、宇航员的认知训练中。本项目使用Python和Tkinter实现了一个交互式的舒尔特方格训练游戏。
+基于Python的认知训练工具，用于提升周边视觉和专注力
 
 ## ✨ 功能特点
 
-- 🎯 标准4×4数字方格
-- 🎮 数字点击验证功能
-- 🔀 一键随机打乱顺序
-- 🎵 正确/错误音效反馈
-- 🎨 视觉反馈（正确点击后按钮变色）
-- ⏱️ 自适应窗口大小的响应式布局
+- **可调网格尺寸**: 支持3x3到6x6的网格
+- **双主题模式**: 亮色/暗黑主题切换
+- **数据统计系统**:
+  - 毫秒级精确计时
+  - 历史记录存储
+  - 分尺寸成绩分析
+- **声音反馈**: 错误提示音效
+- **数据导出**: 支持统计信息导出
 
-## 🛠️ 安装与运行
+## 🚀 安装与运行
 
-### 系统要求
+### 环境要求
 - Python 3.9+
 
-### 安装步骤
 1. 克隆仓库：
 ```bash
-git clone https://github.com/ljh938527/SchulteGird-python.git
-cd SchulteGird-python
+git clone https://github.com/yourusername/Schulte-grid.git
+cd Schulte-grid
 ```
 
-2. 运行游戏：
+2. 安装依赖：
 ```bash
-python main.py
+pip install -r requirements.txt
 ```
+
+3. 运行程序：
+```bash
+python src/main.py
+```
+
+*Windows用户可双击运行`setup.bat`进行自动配置*
 
 ## 🎮 使用说明
 
-1. 游戏启动后显示4×4的数字方格
-2. 按顺序点击数字(1→2→3→...→16)
-3. 正确点击后按钮会变为灰色
-4. 点击"乱序"按钮可重新排列数字
-5. 游戏会自动记录您的点击顺序
+1. **游戏操作**：
+   - 按升序点击数字
+   - 正确点击推进进度
+   - 错误触发提示音
+
+2. **菜单功能**：
+   - `新游戏`：开启当前尺寸新游戏
+   - `统计信息`：查看历史成绩
+   - `网格尺寸`：通过输入框或菜单调整
 
 ## 📁 项目结构
 
 ```
-舒尔特方格/
-├── main.py          # 主程序文件
-└── README.md      # 项目文档
+Schulte-grid/
+├── src/
+│   ├── assets/          # 资源文件
+│   ├── game.py          # 核心游戏逻辑
+│   ├── main.py          # 图形界面入口
+│   ├── statistics.py    # 数据处理模块
+│   └── utils.py         # 工具函数
+├── requirements.txt     # 依赖列表
+└── setup.bat            # Windows安装脚本
 ```
-
-## 🤝 参与贡献
-
-欢迎提交问题和拉取请求！
-
-1. Fork本项目
-2. 创建您的功能分支 (`git checkout -b feature/您的功能`)
-3. 提交更改 (`git commit -m '添加新功能'`)
-4. 推送分支 (`git push origin feature/您的功能`)
-5. 创建拉取请求
 
 ## 📜 开源许可
 
-本项目采用MIT许可证 - 详情请见[LICENSE](LICENSE)文件
-
-## 📧 联系方式
-
-如有任何问题，请联系：
-- 作者：ljh938527
-- 邮箱：[您的邮箱]
-- 项目地址：https://github.com/ljh938527/SchulteGird-python
-
----
-
-**训练愉快！** 🚀 通过舒尔特方格训练提升您的注意力水平！
+MIT 许可证 - 详情请见 [LICENSE](LICENSE)
