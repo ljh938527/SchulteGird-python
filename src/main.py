@@ -31,29 +31,58 @@ class GUI(Game):
         self.size_var = tk.StringVar(value=str(self.grid_size))
         self.enable_gray = tk.BooleanVar(value=True)
         self.enable_play_sound = tk.BooleanVar(value=True)
-        
+        self.dark_mode = False
+        #窗口主题
+        self.theme_colors = {
+            'light': {
+                'bg': '#FFFFFF',
+                'fg': '#000000',
+                'button_bg': '#4CAF50',
+                'button_fg': 'white',
+                'hover_bg': '#45a049'
+            },
+            'dark': {
+                'bg': '#2D2D2D',
+                'fg': '#FFFFFF',
+                'button_bg': '#2E7D32',
+                'button_fg': 'white',
+                'hover_bg': '#1B5E20'
+            }
+        }
+        self.apply_theme()
+        # 窗口布局
         self.interface()
     
     def setup_menu(self):
         """创建菜单栏"""
         menubar = tk.Menu(self.root)
-        
         # 游戏菜单
         game_menu = tk.Menu(menubar, tearoff=0)
-        game_menu.add_command(label="新游戏", command=self.gameRestart)
+        game_menu.add_command(label="新游戏(N)", command=self.gameRestart, underline=4, accelerator='F2')
         game_menu.add_separator()
-        game_menu.add_command(label="统计信息", command=self.show_statistics)
+        game_menu.add_command(label="设置尺寸(C)", command=self.change_grid_size, underline=5)
+        game_menu.add_checkbutton(label="切换主题(E)", command=self.toggle_theme, underline=5)
         game_menu.add_separator()
-        game_menu.add_command(label="退出", command=self.root.quit)
-        menubar.add_cascade(label="游戏", menu=game_menu)
-        # 设置菜单
-        settings_menu = tk.Menu(menubar, tearoff=0)
-        settings_menu.add_command(label="设置尺寸", command=self.change_grid_size)
-        settings_menu.add_separator()
-        settings_menu.add_checkbutton(label="按钮变灰", variable=self.enable_gray)
-        settings_menu.add_checkbutton(label="音效", variable=self.enable_play_sound)
-        menubar.add_cascade(label="设置", menu=settings_menu)
+        game_menu.add_checkbutton(label="按钮变灰(Y)", variable=self.enable_gray, underline=5)
+        game_menu.add_checkbutton(label="音效(S)", variable=self.enable_play_sound, underline=3)
+        game_menu.add_separator()
+        game_menu.add_command(label="统计信息(T)", command=self.show_statistics, underline=5)
+        game_menu.add_separator()
+        game_menu.add_command(label="退出(X)", command=self.root.quit, underline=3)
+        menubar.add_cascade(label="游戏(G)", menu=game_menu, underline=3)
+        
         self.root.config(menu=menubar)
+    
+    def apply_theme(self):
+        """应用主题"""
+        theme = 'dark' if self.dark_mode else 'light'
+        colors = self.theme_colors[theme]
+        self.root.configure(bg=colors['bg'])
+    
+    def toggle_theme(self):
+        """切换主题"""
+        self.dark_mode = not self.dark_mode
+        self.apply_theme()
     
     def play_sound(self, file_path):
         """播放音效"""
@@ -71,6 +100,10 @@ class GUI(Game):
         """播放错误音效"""
         self.play_sound('assets/Error10.mp3')
     
+    def play_success_sound(self):
+        """播放完成音效"""
+        self.play_sound('assets/success1.mp3')
+    
     def on_closing(self):
         """窗口关闭事件处理"""
         pygame.mixer.quit()
@@ -85,7 +118,7 @@ class GUI(Game):
         if int(num) != self.current_number:
             self.count_click_wrong()
             if self.enable_play_sound.get():
-                self.play_error_sound()  # 播放音效
+                self.play_error_sound()  # 播放错误音效
         else:
             self.next_number()
             if self.enable_gray.get():
@@ -94,6 +127,7 @@ class GUI(Game):
                 self.stop_timer()
                 elapsed = self.passed_time()
                 self.stats.add_record(self.grid_size, elapsed)  # 保存记录
+                self.play_success_sound()  #播放完成音效
                 messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(elapsed)}，错误次数：{self.wrong_count}")
                 self.current_number = 1
                 for btn in self.buttons:
@@ -127,7 +161,7 @@ class GUI(Game):
         self.history_text = tk.Text(
             history_frame,
             yscrollcommand=scrollbar.set,
-            width=40,
+            width=42,
             height=15,
             state=tk.DISABLED
         )
@@ -178,14 +212,14 @@ class GUI(Game):
         self.history_text.delete(1.0, tk.END)
         
         # 表头
-        header = f"{'日期':<20}{'尺寸':<8}{'用时':<10}\n"
+        header = f"{'日期':<20}{'尺寸':<10}{'用时':<10}\n"
         self.history_text.insert(tk.END, header)
         self.history_text.insert(tk.END, "-"*38 + "\n")
         
         # 记录按时间倒序排列
         for record in reversed(self.stats.history):
-            line = f"{record['date']:<20}" \
-                   f"{record['grid_size']}x{record['grid_size']:<8}" \
+            line = f"{record['date']:<21}"\
+                   f"{record['grid_size']}x{record['grid_size']:<9}" \
                    f"{record['formatted_time']:<10}\n"
             self.history_text.insert(tk.END, line)
         
@@ -208,7 +242,7 @@ class GUI(Game):
         """修改网格尺寸"""
         new_size = simpledialog.askinteger(
             "设置尺寸",
-            f"当前尺寸：{self.grid_size}\n请输入新尺寸（3-6）：",
+            f"当前尺寸：{self.grid_size}\n请输入新尺寸(3-6)：",
             parent=self.root,
             minvalue=3,
             maxvalue=6
@@ -224,6 +258,8 @@ class GUI(Game):
             new_size = int(self.size_var.get())
             if 3 <= new_size <= 6:
                 self.grid_size = new_size
+                if self.grid_size >= 6:
+                    self.root.geometry('700x700')
                 self.gameRestart()
             else:
                 raise ValueError
@@ -244,7 +280,7 @@ class GUI(Game):
                 text_value = self.grid[i][j]
                 Btn = tk.Button(self.grid_frame, text=text_value, font=("Arial", 12, 'bold'), fg="WHITE", bg="GREEN", width=3, height=2)
                 Btn.config(command=lambda btn=Btn, num=text_value: self.handle_button_on_click(btn, num))  # 使用lambda传递参数
-                Btn.grid(row=j, column=i, padx=2, pady=2)
+                Btn.grid(row=j, column=i, padx=1, pady=1)
                 self.buttons.append(Btn)
     
     def reput_buttons(self):

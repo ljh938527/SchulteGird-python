@@ -75,4 +75,5 @@ if __name__ == '__main__':
     hist = statis.history
     summary = statis.get_grouped_stats()
     
-    print(hist, summary)
+    print(hist)
+    print(summary)
