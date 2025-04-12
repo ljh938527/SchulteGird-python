@@ -6,11 +6,12 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import pygame
+from PIL import Image, ImageTk
 from threading import Thread
 from game import Game
 from utils import format_time
 
-version = ["1", "1", "0"]
+version = ["1", "2", "0"]
 versions = '.'.join(version)
 
 pygame.mixer.init()
@@ -20,16 +21,17 @@ class GUI(Game):
         super(GUI, self).__init__()
         self.root = tk.Tk()
         self.root.title('舒尔特方格 - v' + versions)
-        self.root.geometry("600x600")
-        self.root.minsize(600, 600)
+        self.root.geometry("500x500")
+        self.root.minsize(500, 500)
         self.root.resizable(True, True)
         self.grid_frame = tk.Frame(self.root)  # 按钮容器
         self.grid_frame.place(relx=0.5, rely=0.5, anchor="center")  # 居中显示
+        self.tip_frame = tk.Frame(self.root)  # 提示框
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         # 窗口内属性
         self.buttons = []
         self.size_var = tk.StringVar(value=str(self.grid_size))
-        self.enable_gray = tk.BooleanVar(value=True)
+        self.enable_gray = tk.BooleanVar(value=False)
         self.enable_play_sound = tk.BooleanVar(value=True)
         self.dark_mode = False
         #窗口主题
@@ -49,9 +51,9 @@ class GUI(Game):
                 'hover_bg': '#1B5E20'
             }
         }
-        self.apply_theme()
         # 窗口布局
         self.interface()
+        self.apply_theme()
     
     def setup_menu(self):
         """创建菜单栏"""
@@ -70,7 +72,11 @@ class GUI(Game):
         game_menu.add_separator()
         game_menu.add_command(label="退出(X)", command=self.root.quit, underline=3)
         menubar.add_cascade(label="游戏(G)", menu=game_menu, underline=3)
-        
+        help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu.add_command(label="查看帮助(H)", command=self.help, underline=5)
+        help_menu.add_separator()
+        help_menu.add_command(label="关于(A)", command=self.about, underline=3)
+        menubar.add_cascade(label="帮助(H)", menu=help_menu, underline=3)
         self.root.config(menu=menubar)
     
     def apply_theme(self):
@@ -78,6 +84,10 @@ class GUI(Game):
         theme = 'dark' if self.dark_mode else 'light'
         colors = self.theme_colors[theme]
         self.root.configure(bg=colors['bg'])
+        self.grid_frame.configure(bg=colors['bg'])
+        self.tip_frame.configure(bg=colors['bg'])
+        self.time_label.configure(bg=colors['bg'], fg=colors['fg'])
+        self.today_games_label.configure(bg=colors['bg'], fg=colors['fg'])
     
     def toggle_theme(self):
         """切换主题"""
@@ -110,6 +120,50 @@ class GUI(Game):
         pygame.quit()
         self.root.destroy()
     
+    def help(self):
+        """帮助信息窗口"""
+        help_window = tk.Toplevel()
+        help_window.title('帮助信息')
+        help_window.geometry("400x400")
+        # 帮助文本
+        help_text = tk.Label(
+            help_window,
+            text="这是舒尔特方格游戏的帮助信息。\n\n"
+                 "1. 点击数字按顺序完成游戏。\n"
+                 "2. 可以通过菜单切换主题、调整网格尺寸等。\n"
+                 "3. 查看统计信息了解历史记录。\n",
+            justify=tk.LEFT,
+            wraplength=350
+        )
+        help_text.pack(pady=10)
+        # 显示图片
+        try:
+            image = Image.open("assets/image.png")
+            image = image.resize((200, 200), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            img_label = tk.Label(help_window, image=photo)
+            img_label.image = photo  # 防止图片被垃圾回收
+            img_label.pack(pady=10)
+        except Exception as e:
+            error_label = tk.Label(help_window, text=f"无法加载图片: {e}", fg="red")
+            error_label.pack(pady=10)
+        # 关闭按钮
+        close_button = tk.Button(help_window, text="关闭", command=help_window.destroy)
+        close_button.pack(pady=10)
+    
+    def about(self):
+        """关于窗口"""
+        about_window = tk.Toplevel()
+        about_window.title('关于')
+        program_text = tk.Label(about_window, text="舒尔特方格", font=("Arial", 10))
+        program_text.pack(pady=10)
+        author_text = tk.Label(about_window, text='作者: ljh938527', font=("Arial", 9))
+        author_text.pack(pady=5)
+        version_text = tk.Label(about_window, text=f'版本: {versions}', font=("Arial", 9))
+        version_text.pack(pady=5)
+        close_button = tk.Button(about_window, text="关闭", command=about_window.destroy)
+        close_button.pack(pady=10)
+
     def handle_button_on_click(self, btn, num):
         """处理按钮点击事件"""
         if not self.timer_running:
@@ -128,11 +182,19 @@ class GUI(Game):
                 elapsed = self.passed_time()
                 self.stats.add_record(self.grid_size, elapsed)  # 保存记录
                 self.play_success_sound()  #播放完成音效
+                self.update_today_games_count()
                 messagebox.showinfo("恭喜", f"已完成！总用时：{format_time(elapsed)}，错误次数：{self.wrong_count}")
                 self.current_number = 1
                 for btn in self.buttons:
                     btn.config(bg="GREEN")
-
+    
+    def update_today_games_count(self):
+        """更新今日游戏次数"""
+        self.stats.update_games_count() # 今日游戏次数加一
+        self.today_games_label.config(
+            text=f"今天游戏次数：{self.stats.get_today_games_count()}"
+        ) #更新界面显示
+    
     def gameRestart(self):
         """重开按钮"""
         self.resetGame()
@@ -278,7 +340,7 @@ class GUI(Game):
         for i in range(self.grid_size):
             for j in range(self.grid_size):
                 text_value = self.grid[i][j]
-                Btn = tk.Button(self.grid_frame, text=text_value, font=("Arial", 12, 'bold'), fg="WHITE", bg="GREEN", width=3, height=2)
+                Btn = tk.Button(self.grid_frame, text=text_value, font=("Arial", 12, 'bold'), fg="WHITE", bg="GREEN", width=4, height=2)
                 Btn.config(command=lambda btn=Btn, num=text_value: self.handle_button_on_click(btn, num))  # 使用lambda传递参数
                 Btn.grid(row=j, column=i, padx=1, pady=1)
                 self.buttons.append(Btn)
@@ -294,19 +356,25 @@ class GUI(Game):
         """窗口布局显示"""
         self.setup_menu()
         
-        time_frame = tk.Frame(self.root)
-        time_frame.pack(pady=15)
+        # 显示用时
+        self.tip_frame.pack(pady=15)
         self.time_label = tk.Label(
-            time_frame,
+            self.tip_frame,
             text="用时：00:00.00",
             font=("Arial", 12))
         self.time_label.pack()
         
+        # 显示今天游戏次数
+        self.today_games_label = tk.Label(
+            self.tip_frame,
+            text=f"今天游戏次数：{self.stats.get_today_games_count()}",
+            font=("Arial", 12))
+        self.today_games_label.pack()
+        
         self.generate_grid()
         self.create_buttons()
-        
+    
 
 if __name__ == "__main__":
     app = GUI()
     app.root.mainloop()
-    

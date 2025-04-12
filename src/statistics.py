@@ -10,6 +10,8 @@ class Statistics():
         self.load_stats()
         self.summary_labels = {}
         self.check_folder()
+        self.count_file = "data/count.json"
+        self.data = self.load_games_count_data()
     
     def check_folder(self):
         dirs = ['data/', 'export/']
@@ -69,11 +71,43 @@ class Statistics():
         
         return stats
     
+    def load_games_count_data(self):
+        """加载游戏次数文件"""
+        try:
+            with open(self.count_file, "r") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            # 文件不存在或解析错误时创建文件初始化数据
+            with open(self.count_file, "w") as f:
+                json.dump({}, f)
+            return {}
+    
+    def update_games_count(self):
+        """更新今日游戏次数"""
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        today_count = self.data.get(today_date, 0)
+        self.data[today_date] = today_count + 1
+    
+    def get_today_games_count(self):
+        """获取今日游戏次数"""
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        with open(self.count_file, "w") as f:
+            json.dump(self.data, f)
+        try:
+            return self.data[today_date]
+        except KeyError:
+            self.data[today_date] = 0
+            with open(self.count_file, "w") as f:
+                json.dump(self.data, f)
+            return self.data[today_date]
 
 if __name__ == '__main__':
     statis = Statistics()
     hist = statis.history
     summary = statis.get_grouped_stats()
     
-    print(hist)
-    print(summary)
+    #print(hist)
+    #print(summary)
+    
+    print(statis.get_today_games_count())
+    
