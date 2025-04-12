@@ -1,6 +1,6 @@
 '''
     Program : Shulte-gird
-    Author : ljh938527  (李家豪)
+    Author : ljh938527
     Project-Url : https://github.com/ljh938527/SchulteGird-python
 '''
 import tkinter as tk
@@ -157,7 +157,7 @@ class GUI(Game):
         about_window.title('关于')
         program_text = tk.Label(about_window, text="舒尔特方格", font=("Arial", 10))
         program_text.pack(pady=10)
-        author_text = tk.Label(about_window, text='作者: ljh938527 (李家豪)', font=("Arial", 9))
+        author_text = tk.Label(about_window, text='作者: ljh938527', font=("Arial", 9))
         author_text.pack(pady=5)
         version_text = tk.Label(about_window, text=f'版本: {versions}', font=("Arial", 9))
         version_text.pack(pady=5)
