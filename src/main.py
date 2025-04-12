@@ -1,6 +1,6 @@
 '''
     Program : Shulte-gird
-    Author : ljh938527
+    Author : ljh938527  (李家豪)
     Project-Url : https://github.com/ljh938527/SchulteGird-python
 '''
 import tkinter as tk
@@ -11,7 +11,7 @@ from threading import Thread
 from game import Game
 from utils import format_time
 
-version = ["1", "2", "0"]
+version = ["1", "2", "1"]
 versions = '.'.join(version)
 
 pygame.mixer.init()
@@ -157,7 +157,7 @@ class GUI(Game):
         about_window.title('关于')
         program_text = tk.Label(about_window, text="舒尔特方格", font=("Arial", 10))
         program_text.pack(pady=10)
-        author_text = tk.Label(about_window, text='作者: ljh938527', font=("Arial", 9))
+        author_text = tk.Label(about_window, text='作者: ljh938527 (李家豪)', font=("Arial", 9))
         author_text.pack(pady=5)
         version_text = tk.Label(about_window, text=f'版本: {versions}', font=("Arial", 9))
         version_text.pack(pady=5)
@@ -290,6 +290,7 @@ class GUI(Game):
     def export_stats(self):
         """导出统计数据到文件"""
         export_file_path = "export/game_stats.txt"
+        self.stats.check_folder('export/')
         with open(export_file_path, "w") as f:
             f.write("游戏统计记录\n")
             f.write(f"{'日期':<20}{'尺寸':<10}{'用时':<10}\n")

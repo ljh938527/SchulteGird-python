@@ -9,19 +9,17 @@ class Statistics():
         self.history = []
         self.load_stats()
         self.summary_labels = {}
-        self.check_folder()
         self.count_file = "data/count.json"
         self.data = self.load_games_count_data()
     
-    def check_folder(self):
-        dirs = ['data/', 'export/']
-        for d in dirs:
-            if not os.path.exists(d):
-                os.makedirs(d)
-                print(f'创建文件夹 {d}')
+    def check_folder(self, folder):
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            print(f'创建文件夹 {folder}')
 
     def load_stats(self):
         """加载历史数据"""
+        self.check_folder('data/')
         if os.path.exists(self.stats_file):
             with open(self.stats_file, 'r') as f:
                 try:
@@ -74,6 +72,7 @@ class Statistics():
     def load_games_count_data(self):
         """加载游戏次数文件"""
         try:
+            self.check_folder('data/')
             with open(self.count_file, "r") as f:
                 return json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
