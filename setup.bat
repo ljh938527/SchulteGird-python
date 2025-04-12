@@ -1,39 +1,19 @@
 @echo off
-REM setup.bat - Python ä¾èµ–è‡ªåŠ¨å®‰è£…è„šæœ¬
 
-echo æ­£åœ¨æ£€æŸ¥ Python ç¯å¢ƒ...
-python --version >nul 2>&1
-if %ERRORLEVEL% neq 0 (
-    echo é”™è¯¯: æœªæ£€æµ‹åˆ° Pythonï¼Œè¯·å…ˆå®‰è£… Python å¹¶æ·»åŠ åˆ°ç³»ç»Ÿç¯å¢ƒå˜é‡
-    pause
-    exit /b 1
-)
+REM setup.bat - Python ÒÀÀµ×Ô¶¯°²×°½Å±¾
 
-echo.
-echo æ˜¯å¦ä½¿ç”¨æ¸…åæºåŠ é€Ÿå®‰è£…ï¼Ÿ(é»˜è®¤: N)
-set /p USE_MIRROR="[Y/N] > "
+set MIRROR_URL=-i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+echo ÒÑÆôÓÃÇå»ªÔ´¼ÓËÙ
 
-set "USE_MIRROR=!USE_MIRROR:y=Y!"
-set "USE_MIRROR=!USE_MIRROR:n=N!"
-
-REM æ ¹æ®é€‰æ‹©è®¾ç½®é•œåƒå‚æ•°
-if "!USE_MIRROR!"=="Y" (
-    set MIRROR_URL=-i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
-    echo å·²å¯ç”¨æ¸…åæºåŠ é€Ÿ
-) else (
-    set MIRROR_URL=
-    echo ä½¿ç”¨é»˜è®¤ PyPI æº
-)
-
-echo å‡çº§ pip åˆ°æœ€æ–°ç‰ˆæœ¬...
+echo Éı¼¶ pip µ½×îĞÂ°æ±¾...
 python -m pip install --upgrade pip %MIRROR_URL%
 
-echo æ­£åœ¨å®‰è£…é¡¹ç›®ä¾èµ–...
-python -m pip install -r requirements.txt %MIRROR_URL%
+echo ÕıÔÚ°²×°ÏîÄ¿ÒÀÀµ...
+python -m pip install --upgrade pip %MIRROR_URL%
 
 if %ERRORLEVEL% eq 0 (
-    echo ä¾èµ–å®‰è£…æˆåŠŸï¼
+    echo ÒÀÀµ°²×°³É¹¦£¡
 ) else (
-    echo ä¾èµ–å®‰è£…å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œæˆ–ä¾èµ–é…ç½®
+    echo ÒÀÀµ°²×°Ê§°Ü£¬Çë¼ì²éÍøÂç»òÒÀÀµÅäÖÃ
 )
 pause
